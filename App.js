@@ -3,7 +3,6 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import ProductDetails from './src/Home/ProductDetails';
 import HomeScreen from './src/Home/Homescreen';
 
 const Stack = createStackNavigator();
@@ -20,10 +19,7 @@ export default class App extends React.Component {
             name="Home"
             component={HomeScreen}
           />
-          <Stack.Screen
-            name="Details"
-            component={ProductDetails}
-          />
+         
         </Stack.Navigator>
       </NavigationContainer>
     );

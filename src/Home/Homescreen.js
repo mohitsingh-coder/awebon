@@ -1,241 +1,102 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, FlatList, TextInput, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { ActivityIndicator, List } from 'react-native-paper';
+import React, { useState } from 'react';
+import { Text, View, Image } from 'react-native';
+import MapViewDirections from 'react-native-maps-directions';
+import MapView, { Marker } from 'react-native-maps';
+import LinearGradient from 'react-native-linear-gradient';
+import mapStyle from "./mapStyle";
+import styles from "./styles"
 
 const HomeScreen = (props) => {
 
-    const [isLoading, setIsLoading] = React.useState(true);
-   
-    const [products, setProducts] = useState([]);
-    const [filterProducts, setFilterProducts] = useState([]);
+    const [coordinates] = useState([
+        {
+            latitude: 48.8587741,
+            longitude: 2.2069771,
+        },
+        {
+            latitude: 48.8323785,
+            longitude: 2.3361663,
+        },
+    ]);
 
 
-    useEffect(() => {
-        getProducts()
-    }, [])
-
-    const handlePress = (indx) => {
-        let list = filterProducts;
-        list[indx].expanded = !list[indx].expanded
-        setProducts([...list])
-    };
-
-    const onSearch = (value) => {
-        let list = products.filter((itm) => itm.name.toLowerCase().includes(value.toLowerCase()));
-        let sortList = list.sort((a, b) => b.num_of_purchases - a.num_of_purchases );
-        setFilterProducts([...sortList])
-    }
-
-    const getProducts = () => {
-        setProducts([]);
-        setFilterProducts([])
-        setIsLoading(true)
-        fetch('https://60cc791971b73400171f7d68.mockapi.io/api/v1/products').then((response) => response.json())
-            .then((json) => {
-                console.log(json);
-                if (json) {
-                    let data = json.sort((a, b) => b.num_of_purchases - a.num_of_purchases);
-                    data[1].expanded = true
-                    setProducts([...data]);
-                    setFilterProducts([...data])
-                }
-                setIsLoading(false)
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
-
-
-    const renderItem = ({ item, index }) => {
-        return (
-            <List.Section >
-
-
-
-                <List.Accordion
-                    title={"#" + (index + 1) + "    " + item.name}
-                    titleStyle={{ color: "#000", fontSize: 14, fontWeight: "bold" }}
-                    style={{ backgroundColor: item.expanded ? "#eee" : "#fff", borderRadius: 5, padding: 2, elevation: 5 }}
-                    expanded={item.expanded}
-                    onPress={() => handlePress(index)}>
-                    <View style={styles.rowItem}>
-
-                        <View>
-                            <View style={{ padding: 10 }}>
-                                <Text style={styles.listTitle}>Product Id</Text>
-                                <Text style={styles.listValue}>{item.pid}</Text>
-                            </View>
-                            <View style={{ padding: 10 }}>
-                                <Text style={styles.listTitle}>Product name</Text>
-                                <Text style={styles.listValue}>{item.name}</Text>
-                            </View>
-                        </View>
-                        <TouchableOpacity onPress={() => props.navigation.navigate("Details", { item })}>
-                            <Image style={styles.imageView} source={{ uri: item.image }} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ padding: 10 }}>
-                        <Text style={styles.listTitle}>Product description</Text>
-                        <Text style={styles.listValue}>{item.description}</Text>
-                    </View>
-                    <View style={styles.rowItem}>
-
-                        <View>
-                            <View style={{ padding: 10 }}>
-                                <Text style={styles.listTitle}>Product price</Text>
-                                <Text style={styles.listValue}>${item.price}</Text>
-                            </View>
-                            <View style={{ padding: 10 }}>
-                                <Text style={styles.listTitle}>Sale price</Text>
-                                <Text style={styles.listValue}>${item.sale_price}</Text>
-                            </View>
-                        </View>
-                        <View style={[styles.purchaseItem]}>
-                            <Text style={styles.listTitle}>Purchased</Text>
-                            <Text style={styles.purchaseCount}>{item.num_of_purchases}</Text>
-                        </View>
-                    </View>
-                    <View style={{ padding: 10 }}>
-                        <Text style={styles.listTitle}>Status</Text>
-                        <View style={{ width: 90, marginTop: 5, paddingHorizontal: 8, paddingVertical: 4, justifyContent: "center", alignItems: "center", borderRadius: 20, backgroundColor: item.status ? "green" : "red" }}>
-                            <Text style={styles.statusValue}>{item.status ? "Published" : "Not published"}</Text>
-                        </View>
-                    </View>
-                </List.Accordion>
-
-
-            </List.Section>
-        )
-    }
+    const GOOGLE_API_KEY = 'AIzaSyAjj-NqsAXEnrnaG4Xt72HoF-kfQ6gLcDk';
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.menu}>
-                    <Icon
-                        name="options"
-                        color="#F9573F"
-                        size={25}
-                    />
-                </TouchableOpacity>
-                <Image style={{ width: 40, height: 40, borderRadius: 20 }} source={{ uri: "https://content.fortune.com/wp-content/uploads/2018/07/gettyimages-961697338.jpg" }} />
-            </View>
-            <View>
-                <Text style={styles.titleText}>All Products</Text>
-                <Text style={styles.descext}>Lorem ipsum dolor sit amet</Text>
-            </View>
-
-            <View style={styles.inputContainer}>
-                <Icon
-                    name="search"
-                    color="#000"
-                    size={18}
+            <MapView
+                style={styles.maps}
+                customMapStyle={mapStyle}
+                initialRegion={{
+                    latitude: coordinates[0].latitude,
+                    longitude: coordinates[0].longitude,
+                    latitudeDelta: 0.0622,
+                    longitudeDelta: 0.0121,
+                }}>
+                <MapViewDirections
+                    origin={coordinates[0]}
+                    destination={coordinates[1]}
+                    apikey={GOOGLE_API_KEY} // insert your API Key here
+                    strokeWidth={4}
+                    strokeColor="#111111"
                 />
+                <Marker coordinate={coordinates[0]} />
+                <Marker coordinate={coordinates[1]} />
+            </MapView>
+            <View style={styles.bottomSheet}>
+                <View>
+                    <Text style={styles.greenText}>82%</Text>
+                    <LinearGradient
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0.7, y: 0 }} c
+                        colors={['#F33434', '#F37934', '#535353']}
+                        style={styles.linearGradient}>
 
-                <TextInput
-                    placeholder="Search products"
-                    underlineColorAndroid="transparent"
-                    style={{ color: "grey", width: "100%" }}
-                    placeholderTextColor="grey"
-                    onChangeText={value => onSearch(value)}
-                />
-            </View>
-
-
-            {filterProducts.length > 0 &&
-                <FlatList
-                    data={filterProducts}
-                    extraData={filterProducts}
-                    renderItem={renderItem}
-                />
-            }
-            {!isLoading && filterProducts.length === 0 && (
-                <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
-                    <Text style={{ color: "grey" }}>No products available</Text>
+                    </LinearGradient>
                 </View>
-            )}
+                <View style={styles.locations}>
+                    <View style={styles.profileCard}>
+                        <View style={styles.rowAlignCenter}>
+                            <Image style={styles.userImage} source={require("../assets/Icons/user.png")} />
+                            <Text style={styles.userName}>Max Payne</Text>
+                        </View>
 
-            {isLoading && (
-                <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
-                    <ActivityIndicator />
+                        <View style={styles.rowAlignCenter}>
+                            <Image style={styles.icons} source={require("../assets/Icons/message.png")} />
+                            <Image style={styles.icons} source={require("../assets/Icons/phone.png")} />
+                        </View>
+                    </View>
+
+                    <View style={styles.locationCard}>
+                        <View style={styles.iconContainer}>
+                            <Image style={{ marginTop: 15 }} source={require("../assets/Icons/location.png")} />
+                            <Image style={styles.lineicon} source={require("../assets/Icons/grrenline.png")} />
+                        </View>
+                        <View>
+                            <Text style={styles.titleGreen}>Current Location</Text>
+                            <Text style={styles.desc}>4517 Washington Ave. Manchester</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.locationCard}>
+                        <View>
+                            <Image style={styles.destinationIcon} source={require("../assets/Icons/destination.png")} />
+                            <Image style={styles.yellowcon} source={require("../assets/Icons/yellowline.png")} />
+                        </View>
+                        <View>
+                            <Text style={styles.greyText}>Current Location</Text>
+                            <Text style={styles.greyDesc}>4517 Washington Ave. Manchester</Text>
+                        </View>
+                    </View>
                 </View>
-            )}
-
-
-
+            </View>
         </View>
+
     );
 }
 
 
 
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-        backgroundColor: "#fff"
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 15
-    },
-    menu: {
-        backgroundColor: "#FDD0C7",
-        width: 40,
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        height: 40,
-        borderRadius: 10
-    },
-    titleText: {
-        color: "#000",
-        fontWeight: "bold",
-        fontSize: 20
-    },
-    descext: {
-        color: "grey",
-        fontSize: 10
-    },
-    searchInput: {
-        padding: 10,
-        width: "100%",
-        backgroundColor: "#f5f5f5",
-        height: 30,
-        marginTop: 15,
-        borderRadius: 5
-    },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-        marginTop: 15,
-        borderRadius: 5,
-        height: 40,
-        paddingHorizontal: 10,
-    },
-    listTitle: {
-        color: "grey",
-        fontSize: 11
-    },
-    listValue: {
-        color: "#000",
-        fontSize: 12,
-        fontWeight: "bold",
-        marginTop: 4,
-        lineHeight: 18
-    },
-    purchaseCount: { color: "#F95A3F", fontSize: 28, fontWeight: "bold" },
-    imageView: { width: 80, height: 90, borderRadius: 10 },
-    purchaseItem: { backgroundColor: "#FEEBE6", justifyContent: "center", alignItems: "center", width: 80, height: 80, borderRadius: 10 },
-    statusValue: { color: "#fff", fontSize: 12, marginBottom: 2 },
-    rowItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }
-})
 
 export default HomeScreen;
