@@ -20,7 +20,7 @@ const HomeScreen = (props) => {
     ]);
 
 
-    const GOOGLE_API_KEY = 'AIzaSyAjj-NqsAXEnrnaG4Xt72HoF-kfQ6gLcDk';
+    const GOOGLE_API_KEY = 'AIzaSyDERZgMoGSyQWrLSo0iU-c6rYeQoMAYQQk';
 
     return (
         <View style={styles.container}>
@@ -38,7 +38,7 @@ const HomeScreen = (props) => {
                     destination={coordinates[1]}
                     apikey={GOOGLE_API_KEY} // insert your API Key here
                     strokeWidth={4}
-                    strokeColor="#111111"
+                    strokeColor="#F37934"
                 />
                 <Marker coordinate={coordinates[0]} />
                 <Marker coordinate={coordinates[1]} />
